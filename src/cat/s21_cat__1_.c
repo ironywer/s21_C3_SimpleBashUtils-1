@@ -14,9 +14,9 @@ char sym_output_with_options(FILE *fp, char sym, char *op_flags, int *num_row,
 int main(int argc, char *argv[]) {
   FILE *fp;
   int flag = OK;
-  if (argc == 2) {
-    flag = output_of_the_entire_file(argv[1]);
-  } else if (argc > 2) {
+  // if (argc == 2) {
+  //   flag = output_of_the_entire_file(argv[1]);
+  if (argc > 1) {
     flag = output_with_options(argc, argv);
   } else
     flag = ERROR;
@@ -55,7 +55,7 @@ int options(int argc, char **argv, char *op_flag, int *count_flags,
             strchr(op_flag, buf_sym) == NULL) {
           op_flag[*count_flags] = buf_sym;
           *count_flags += 1;
-        } else if (strchr(flags_const, buf_sym) == NULL){
+        } else if (strchr(flags_const, buf_sym) == NULL) {
           flag = ERROR;
           printf("2E - %d\n", flag);
         }
@@ -72,7 +72,7 @@ int output_with_options(int argc, char **argv) {
   for (int i = count_arg_flags + 1; i < argc && flag == OK; i++) {
     FILE *fp;
     if ((fp = fopen(argv[i], "r")) == NULL) {
-      printf("Не удалось открыть файл");
+      printf("cat: %s: No such file or directory\n", argv[i]);
       flag = ERROR;
     } else {
       char sym;
@@ -84,7 +84,8 @@ int output_with_options(int argc, char **argv) {
                                            pred_sym, &eline_printed);
       }
     }
-    fclose(fp);
+    if (fp != NULL)
+      fclose(fp);
   }
   return flag;
 }
