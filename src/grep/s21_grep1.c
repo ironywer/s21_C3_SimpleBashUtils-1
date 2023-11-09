@@ -9,7 +9,7 @@
 int options_and_regulars(int argc, char **argv, char regulars[100][100],
                          int *number_regulars, char *op_flags, int *count_flags);
 
-int arg_flags(char *argum, char *op_flags, int *flag_e);
+int arg_flags(char *argum, char *op_flags, int *flag_e, int *flag_f);
 
 int read_and_print(int argc, char **argv, char regulars[100][100],
                    int number_regulars, char *op_flags, int count_flags);
@@ -157,7 +157,7 @@ int read_and_print(int argc, char **argv, char regulars[100][100],
                       count_flags, regex, fp);
     } else if (argv[k][0] != '\0' && strchr(op_flags, 's') == NULL)
       printf("%s: No such file or directory\n", argv[k]);
-  }
+  } 
 
   for (int i = 0; i < number_regulars && flag == OK; i++) {
     regfree(&regex[i]);
@@ -165,20 +165,41 @@ int read_and_print(int argc, char **argv, char regulars[100][100],
   return flag;
 }
 
+void read_file_regulars(char *filename,char regulars[100][100], int *number_regulars){
+  FILE *f = NULL;
+  int flag = OK;
+  if ((f = fopen(filename, "r")) == NULL) {
+    flag = ERROR;
+    printf("%s: No such file or directory\n", filename);}
+  char *line =NULL;
+  size_t size;
+  while (flag == OK && getline(&line, &size, f) != -1){
+    strcpy(regulars[*number_regulars], line);
+    *number_regulars+=1;
+  }
+  free(line);  
+  if (f != NULL) fclose(f);
+}
+
 int options_and_regulars(int argc, char **argv, char regulars[100][100],
                          int *number_regulars, char *op_flags, int *count_flags) {
   int flag = OK;
-  int flag_e = 0;
+  int flag_e = 0, flag_f = 1;
   for (int i = 1; i < argc && flag == OK; i++) {
     char *argum = argv[i];
     if (argum[0] == '-') {
-      flag = arg_flags(argum, op_flags, &flag_e);
+      flag = arg_flags(argum, op_flags, &flag_e, &flag_f);
       *count_flags += 1;
-    } else if (flag_e == 0) {
+    }else if (flag_f == 0) {
+      read_file_regulars(argv[i], regulars, number_regulars);
+      flag_f = -1;
+      *number_regulars += 1;
+    } 
+    else if (flag_e == 0) {
       strcpy(regulars[*number_regulars], argv[i]);
       *number_regulars += 1;
       flag_e = -1;
-    } else if (flag_e == -1) {
+    } else if (flag_e == -1 || flag_f == -1) {
       i = argc;
     } else
       flag = ERROR;
@@ -186,7 +207,7 @@ int options_and_regulars(int argc, char **argv, char regulars[100][100],
   return flag;
 }
 
-int arg_flags(char *argum, char *op_flags, int *flag_e) {
+int arg_flags(char *argum, char *op_flags, int *flag_e, int *flag_f) {
   int flag = OK;
   char flags_const[N_FLAGS_GREP] = {"eivfsohcln"};
   for (int i = 1; i < (int) strlen(argum) && flag == OK; i++) {
@@ -195,7 +216,7 @@ int arg_flags(char *argum, char *op_flags, int *flag_e) {
       if (strchr(op_flags, sym) == NULL) {
         *strchr(op_flags, '\0') = sym;
       }
-      // if (sym == 'f')
+      if (sym == 'f') *flag_f = 0;
       if (sym == 'e') *flag_e = 0;
     } else {
       printf("%s: Illegal option -- %c\n", argum, sym);

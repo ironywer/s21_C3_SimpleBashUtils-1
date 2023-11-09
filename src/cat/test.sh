@@ -28,7 +28,7 @@ function check_result {
 ./s21_cat -b ${INPUTFILE} > result.txt
 cat -b ${INPUTFILE} > expected.txt
 echo -e "Test -b flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -36,7 +36,7 @@ echo -e "\n-------------\n"
 ./s21_cat -e ${INPUTFILE} > result.txt
 cat -e ${INPUTFILE} > expected.txt
 echo -e "Test -e flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -44,7 +44,7 @@ echo -e "\n-------------\n"
 ./s21_cat -n ${INPUTFILE} > result.txt
 cat -n ${INPUTFILE} > expected.txt
 echo -e "Test -n flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -52,7 +52,7 @@ echo -e "\n-------------\n"
 ./s21_cat -s ${INPUTFILE} > result.txt
 cat -s ${INPUTFILE} > expected.txt
 echo -e "Test -s flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -60,7 +60,7 @@ echo -e "\n-------------\n"
 ./s21_cat -t ${INPUTFILE} > result.txt
 cat -t ${INPUTFILE} > expected.txt
 echo -e "Test -t flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -68,7 +68,7 @@ echo -e "\n-------------\n"
 ./s21_cat -E ${INPUTFILE} > result.txt
 cat -E ${INPUTFILE} > expected.txt
 echo -e "Test -E flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -76,7 +76,7 @@ echo -e "\n-------------\n"
 ./s21_cat -T ${INPUTFILE} > result.txt
 cat -T ${INPUTFILE} > expected.txt
 echo -e "Test -T flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -84,7 +84,7 @@ echo -e "\n-------------\n"
 ./s21_cat --number-nonblank ${INPUTFILE} > result.txt
 cat -b ${INPUTFILE} > expected.txt
 echo -e "Test --number-nonblank flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -92,7 +92,7 @@ echo -e "\n-------------\n"
 ./s21_cat --number ${INPUTFILE} > result.txt
 cat -n ${INPUTFILE} > expected.txt
 echo -e "Test --number flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -100,7 +100,7 @@ echo -e "\n-------------\n"
 ./s21_cat --squeeze-blank ${INPUTFILE} > result.txt
 cat -s ${INPUTFILE} > expected.txt
 echo -e "Test --squeeze-blank flag"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -108,7 +108,7 @@ echo -e "\n-------------\n"
 ./s21_cat -ne ${INPUTFILE} > result.txt
 cat -ne ${INPUTFILE} > expected.txt
 echo -e "Test -ne flags"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"
@@ -116,7 +116,7 @@ echo -e "\n-------------\n"
 ./s21_cat -tbs ${INPUTFILE} > result.txt
 cat -tbs ${INPUTFILE} > expected.txt
 echo -e "Test -tbs flags"
-diff result.txt expected.txt
+cmp result.txt expected.txt
 check_result
 
 echo -e "\n-------------\n"

@@ -1,0 +1,3 @@
+file1.txt:Some lines match the pattern.
+file1.txt:this is pattern toofile2.txt:Some lines match the pattern.
+file2.txt:this is pattern too)!
