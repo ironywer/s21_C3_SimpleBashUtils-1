@@ -75,8 +75,8 @@ int output_with_options(int argc, char **argv) {
       int num_row = 0, eline_printed = 0;
       char pred_sym = '\n';
       while ((sym = fgetc(fp)) != EOF) {
-        pred_sym = sym_output_with_options(sym, op_flags, &num_row,
-                                           pred_sym, &eline_printed);
+        pred_sym = sym_output_with_options(sym, op_flags, &num_row, pred_sym,
+                                           &eline_printed);
       }
     }
     if (fp != NULL) fclose(fp);
@@ -109,9 +109,9 @@ char sym_output_with_options(char sym, char *op_flags, int *num_row,
     }
     if ((strchr(op_flags, 'v') != NULL || strchr(op_flags, 'e') != NULL ||
          strchr(op_flags, 't') != NULL) &&
-        ((sym >= 0 && sym <= 31 )|| sym == 127)&& sym != '\n' && sym != '\t') {
+        ((sym >= 0 && sym <= 31) || sym == 127) && sym != '\n' && sym != '\t') {
       printf("^");
-      sym = (sym + 64)%128;
+      sym = (sym + 64) % 128;
     }
     putchar(sym);
   }

@@ -7,9 +7,10 @@
 #define ERROR -1
 #define N_FLAGS_GREP 10
 int options_and_regulars(int argc, char **argv, char regulars[100][100],
-                         int *number_regulars, char *op_flags, int *count_flags);
+                         int *number_regulars, char *op_flags,
+                         int *count_flags);
 
-int arg_flags(char *argum, char *op_flags, int *flag_e);
+int arg_flags(char *argum, char *op_flags, int *flag_e, int *flag_f);
 
 int read_and_print(int argc, char **argv, char regulars[100][100],
                    int number_regulars, char *op_flags, int count_flags);
@@ -19,15 +20,16 @@ int compile_regex(regex_t *regex, char regulars[100][100], int number_regulars,
 FILE *open_file(int argc, char *argv[], int k, int number_regulars,
                 int count_flags);
 
-int one_file(int argc, char *argv, int number_regulars,
-             char *op_flags, int count_flags,
-             regex_t *regex, FILE *fp);
+int one_file(int argc, char *argv, int number_regulars, char *op_flags,
+             int count_flags, regex_t *regex, FILE *fp);
 
 void print_file(regex_t *regex, int number_regulars, int count_flags,
                 char *op_flags, int *match_count, int end_while, char row[1000],
                 int *schet, int argc, int line_number, char *argv);
 
-void outputMatches(int *match_count, int number_regulars, int *schet, int count_flags, char *op_flags, int argc,int *line_number, char *argv, regex_t reg, char *row) ;
+void outputMatches(int *match_count, int number_regulars, int *schet,
+                   int count_flags, char *op_flags, int argc, int *line_number,
+                   char *argv, regex_t reg, char *row);
 
 int main(int argc, char *argv[]) {
   int flag = OK;
@@ -65,6 +67,7 @@ int compile_regex(regex_t *regex, char regulars[100][100], int number_regulars,
   }
 
   for (int i = 0; i < number_regulars; i++) {
+    // printf("1 %s", regulars[i]);
     if (regcomp(&regex[i], regulars[i], regex_flags) != 0) {
       flag = ERROR;
       i = number_regulars;
@@ -74,7 +77,9 @@ int compile_regex(regex_t *regex, char regulars[100][100], int number_regulars,
   return flag;
 }
 //
-void outputMatches(int *match_count, int number_regulars, int *schet, int count_flags, char *op_flags, int argc,int *line_number, char *argv, regex_t reg, char *row) {
+void outputMatches(int *match_count, int number_regulars, int *schet,
+                   int count_flags, char *op_flags, int argc, int *line_number,
+                   char *argv, regex_t reg, char *row) {
   *match_count += 1;
   *schet = 0;
   if (argc - 2 > number_regulars + count_flags &&
@@ -88,20 +93,19 @@ void outputMatches(int *match_count, int number_regulars, int *schet, int count_
     }
     if (strchr(op_flags, 'o') == NULL) printf("%s", row);
   }
-  if (strchr(op_flags, 'o') !=NULL){
-  char *curs = row;
-  int first_row = 0;
-  regmatch_t match;
-  while (regexec(&reg, curs, 1, &match, 0) == 0){
-    if (first_row != 0) putchar('\n');
-    printf("%.*s", (int)(match.rm_eo - match.rm_so), &curs[match.rm_so]);
-    curs += match.rm_eo;
-    first_row +=1;
-  }
-  if (first_row == 1) putchar('\n');
+  if (strchr(op_flags, 'o') != NULL) {
+    char *curs = row;
+    int first_row = 0;
+    regmatch_t match;
+    while (regexec(&reg, curs, 1, &match, 0) == 0) {
+      if (first_row != 0) putchar('\n');
+      printf("%.*s", (int)(match.rm_eo - match.rm_so), &curs[match.rm_so]);
+      curs += match.rm_eo;
+      first_row += 1;
+    }
+    if (first_row == 1) putchar('\n');
   }
 }
-
 
 void print_file(regex_t *regex, int number_regulars, int count_flags,
                 char *op_flags, int *match_count, int end_while, char row[1000],
@@ -109,16 +113,16 @@ void print_file(regex_t *regex, int number_regulars, int count_flags,
   for (int i = 0; i < number_regulars && end_while != -1; i++) {
     int res = regexec(&regex[i], row, 0, NULL, 0);
     char *v = strchr(op_flags, 'v');
-    if ((res == 0 && v == NULL )|| (res != 0 && v != NULL)) {
-      outputMatches(match_count, number_regulars, schet, count_flags, op_flags, argc, &line_number, argv, regex[i], row);
+    if ((res == 0 && v == NULL) || (res != 0 && v != NULL)) {
+      outputMatches(match_count, number_regulars, schet, count_flags, op_flags,
+                    argc, &line_number, argv, regex[i], row);
       i = number_regulars;
     }
   }
 }
 
-int one_file(int argc, char *argv, int number_regulars,
-             char *op_flags, int count_flags,
-             regex_t *regex, FILE *fp) {
+int one_file(int argc, char *argv, int number_regulars, char *op_flags,
+             int count_flags, regex_t *regex, FILE *fp) {
   int flag = OK, end_while = 0, match_count = 0, line_number = 0, schet = 0;
   while (end_while != -1 && flag == OK) {
     char row[1000] = {'\0'};
@@ -128,11 +132,13 @@ int one_file(int argc, char *argv, int number_regulars,
       fclose(fp);
       end_while = -1;
       if (count_flags && strchr(op_flags, 'c')) {
-        if (argc - 2 > number_regulars + count_flags && strchr(op_flags, 'h') == NULL) printf("%s:", argv);
+        if (argc - 2 > number_regulars + count_flags &&
+            strchr(op_flags, 'h') == NULL)
+          printf("%s:", argv);
         printf("%d\n", match_count);
       } else if (count_flags && strchr(op_flags, 'l')) {
         printf("%s\n", argv);
-      } else if ((fp != NULL) && schet == 1 && strchr(op_flags, 'o') == NULL)
+      } else if (schet == 1 && strchr(op_flags, 'o') == NULL)
         printf("\n");
       line_number = 0;
     }
@@ -145,7 +151,7 @@ int one_file(int argc, char *argv, int number_regulars,
 int read_and_print(int argc, char **argv, char regulars[100][100],
                    int number_regulars, char *op_flags, int count_flags) {
   int flag = OK;
-  FILE *fp;
+  FILE *fp = NULL;
   regex_t regex[1000];
   int f = 1;
   flag = compile_regex(regex, regulars, number_regulars, op_flags);
@@ -153,8 +159,8 @@ int read_and_print(int argc, char **argv, char regulars[100][100],
   for (int k = number_regulars + count_flags + f; flag == OK && k < argc; k++) {
     fp = open_file(argc, argv, k, number_regulars, count_flags);
     if (fp != NULL) {
-      flag = one_file(argc, argv[k], number_regulars, op_flags,
-                      count_flags, regex, fp);
+      flag = one_file(argc, argv[k], number_regulars, op_flags, count_flags,
+                      regex, fp);
     } else if (argv[k][0] != '\0' && strchr(op_flags, 's') == NULL)
       printf("%s: No such file or directory\n", argv[k]);
   }
@@ -165,37 +171,63 @@ int read_and_print(int argc, char **argv, char regulars[100][100],
   return flag;
 }
 
-int options_and_regulars(int argc, char **argv, char regulars[100][100],
-                         int *number_regulars, char *op_flags, int *count_flags) {
+void read_file_regulars(char *filename, char regulars[100][100],
+                        int *number_regulars) {
+  FILE *f = NULL;
   int flag = OK;
-  int flag_e = 0;
+  if ((f = fopen(filename, "r")) == NULL) {
+    flag = ERROR;
+    printf("%s: No such file or directory\n", filename);
+  }
+  char *line = NULL;
+  size_t size;
+  while (flag == OK && getline(&line, &size, f) != -1) {
+    strcpy(regulars[*number_regulars], line);
+    *number_regulars += 1;
+    // printf("%s - %s", filename, regulars[*number_regulars-1]);
+  }
+  free(line);
+  if (f != NULL) fclose(f);
+}
+
+int options_and_regulars(int argc, char **argv, char regulars[100][100],
+                         int *number_regulars, char *op_flags,
+                         int *count_flags) {
+  int flag = OK;
+  int flag_e = 0, flag_f = 1;
   for (int i = 1; i < argc && flag == OK; i++) {
     char *argum = argv[i];
     if (argum[0] == '-') {
-      flag = arg_flags(argum, op_flags, &flag_e);
+      flag = arg_flags(argum, op_flags, &flag_e, &flag_f);
       *count_flags += 1;
-    } else if (flag_e == 0) {
+    } else if (flag_f == 0) {
+      read_file_regulars(argv[i], regulars, number_regulars);
+      flag_f = -1;
+      // *number_regulars += 1;
+    } else if (flag_e == 0 && flag_f == 1) {
       strcpy(regulars[*number_regulars], argv[i]);
       *number_regulars += 1;
       flag_e = -1;
-    } else if (flag_e == -1) {
+      // } else if (flag_e == -1 || flag_f == -1) {
+    } else {
       i = argc;
-    } else
-      flag = ERROR;
+    }
+    // else
+    //   flag = ERROR;
   }
   return flag;
 }
 
-int arg_flags(char *argum, char *op_flags, int *flag_e) {
+int arg_flags(char *argum, char *op_flags, int *flag_e, int *flag_f) {
   int flag = OK;
   char flags_const[N_FLAGS_GREP] = {"eivfsohcln"};
-  for (int i = 1; i < (int) strlen(argum) && flag == OK; i++) {
+  for (int i = 1; i < (int)strlen(argum) && flag == OK; i++) {
     char sym = argum[i];
     if (strchr(flags_const, sym) != NULL) {
       if (strchr(op_flags, sym) == NULL) {
         *strchr(op_flags, '\0') = sym;
       }
-      // if (sym == 'f')
+      if (sym == 'f') *flag_f = 0;
       if (sym == 'e') *flag_e = 0;
     } else {
       printf("%s: Illegal option -- %c\n", argum, sym);

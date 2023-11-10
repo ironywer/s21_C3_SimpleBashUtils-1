@@ -1,4 +1,0 @@
-file1.txt:pattern
-file1.txt:pattern
-file2.txt:pattern
-file2.txt:pattern
