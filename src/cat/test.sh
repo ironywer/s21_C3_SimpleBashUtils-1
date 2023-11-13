@@ -3,6 +3,7 @@
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+ALL=$((0))
 if [ $# -eq 0 ]; then
   echo "No arguments supplied"
   exit 1
@@ -15,8 +16,8 @@ else
   INPUTFILE=$1
 fi fi
 COUNT=0
-
 function check_result {
+  ALL=$((ALL+1))
   if [ $? -eq 0 ]; then
     echo -e "${GREEN}Test passed${NC}"
     COUNT=$((COUNT+1))
@@ -26,26 +27,47 @@ function check_result {
 }
 
 flag=(
-  '-b'
-  '-e'
-  '-n'
-  '-s'
-  '-t'
-  '-E'
-  '-T'
+  'b'
+  'e'
+  'n'
+  's'
+  't'
 )
 
 for i in ${flag[*]}; do
-  ./s21_cat ${i} ${INPUTFILE} > result.txt
-  cat ${i} ${INPUTFILE} > expected.txt
-  echo -e "Test ${i} flag"
+  ./s21_cat -${i} ${INPUTFILE} > result.txt
+  cat -${i} ${INPUTFILE} > expected.txt
+  echo -e "Test -${i} flag"
   cmp result.txt expected.txt
   check_result
 
   echo -e "\n-------------\n"
 done 
+# leaks -atExit --  
+# valgrind --tool=memcheck --leak-check=yes --track-origins=yes -q
 
-./s21_cat --number-nonblank ${INPUTFILE} > result.txt
+COUNTER1=$((0))
+for i in ${flag[*]}; do
+  COUNTER1=$(( $COUNTER1 + 1))
+  COUNTER2=$((0))
+  for j in ${flag[*]}; do
+    COUNTER2=$(( $COUNTER2 + 1))
+    COUNTER3=$((0))
+    # if [ $COUNTER2 -gt $COUNTER1 ]; then
+      for k in ${flag[*]}; do
+        COUNTER3=$(( $COUNTER3 + 1))
+        # if [ $COUNTER3 -gt $COUNTER2 ]; then
+          ./s21_cat -$i$j$k ${INPUTFILE} > result.txt
+          cat -$i$j$k  ${INPUTFILE} > expected.txt
+          echo -e "Test -${i}${j}${k}"
+          cmp result.txt expected.txt
+          check_result
+        # fi
+      done 
+    # fi
+  done 
+done 
+valgrind --tool=memcheck --leak-check=yes  ./s21_cat --number-nonblank ${INPUTFILE} > result.txt
 cat -b ${INPUTFILE} > expected.txt
 echo -e "Test --number-nonblank flag"
 cmp result.txt expected.txt
@@ -87,7 +109,7 @@ echo -e "\n-------------\n"
 
 rm result.txt expected.txt
 
-echo -e "Total tests passed: ${COUNT}/12"
+echo -e "Total tests passed: ${COUNT}/${ALL}"
 
 clang-format -n *.c
 

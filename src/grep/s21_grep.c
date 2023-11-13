@@ -91,9 +91,11 @@ void outputMatches(int *match_count, int number_regulars, int *schet,
     if (strchr(op_flags, 'n')) {
       printf("%d:", *line_number);  // Выводим номер строки
     }
-    if (strchr(op_flags, 'o') == NULL) printf("%s", row);
+    if (strchr(op_flags, 'o') == NULL || strchr(op_flags, 'v') != NULL)
+      printf("%s", row);
   }
-  if (strchr(op_flags, 'o') != NULL) {
+  if (strchr(op_flags, 'o') != NULL && strchr(op_flags, 'l') == NULL &&
+      strchr(op_flags, 'c') == NULL && strchr(op_flags, 'v') == NULL) {
     char *curs = row;
     int first_row = 0;
     regmatch_t match;
@@ -228,7 +230,10 @@ int arg_flags(char *argum, char *op_flags, int *flag_e, int *flag_f) {
         *strchr(op_flags, '\0') = sym;
       }
       if (sym == 'f') *flag_f = 0;
-      if (sym == 'e') *flag_e = 0;
+      if (sym == 'e') {
+        *flag_e = 0;
+        i = (int)strlen(argum);
+        }
     } else {
       printf("%s: Illegal option -- %c\n", argum, sym);
       flag = ERROR;
