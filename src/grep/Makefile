@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -std=c11
+CFLAGS = -Wall -Wextra -Werror 
 SANITIZE = -fsanitize=address -fsanitize=address -fsanitize=undefined
 
 all : s21_grep

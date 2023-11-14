@@ -192,8 +192,8 @@ int read_file_regulars(char *filename, char regulars[100][100],
     fprintf(stderr, "s21_grep: %s: No such file or directory\n", filename);
   }
   char *line = NULL;
-  size_t size;
-  while (flag == OK && getline(&line, &size, f) != -1) {
+  size_t size = 0;
+  while (flag == OK && (int)(getline(&line, &size, f)) != -1) {
     strcpy(regulars[*number_regulars], line);
     *number_regulars += 1;
     // printf("%s - %s", filename, regulars[*number_regulars-1]);
