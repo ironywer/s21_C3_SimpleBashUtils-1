@@ -137,7 +137,9 @@ int one_file(int argc, char *argv, int number_regulars, char *op_flags,
         if (argc - 2 > number_regulars + count_flags &&
             strchr(op_flags, 'h') == NULL)
           printf("%s:", argv);
+        if (strchr(op_flags, 'l') != NULL) match_count = 1;
         printf("%d\n", match_count);
+        if (strchr(op_flags, 'l') != NULL) printf("%s\n", argv);
       } else if (count_flags && strchr(op_flags, 'l')) {
         printf("%s\n", argv);
       } else if (schet == 1 && strchr(op_flags, 'o') == NULL)
@@ -164,7 +166,7 @@ int read_and_print(int argc, char **argv, char regulars[100][100],
       flag = one_file(argc, argv[k], number_regulars, op_flags, count_flags,
                       regex, fp);
     } else if (argv[k][0] != '\0' && strchr(op_flags, 's') == NULL)
-      printf("%s: No such file or directory\n", argv[k]);
+      fprintf(stderr, "s21_grep: %s: No such file or directory\n", argv[k]);
   }
 
   for (int i = 0; i < number_regulars && flag == OK; i++) {
@@ -179,7 +181,7 @@ void read_file_regulars(char *filename, char regulars[100][100],
   int flag = OK;
   if ((f = fopen(filename, "r")) == NULL) {
     flag = ERROR;
-    printf("%s: No such file or directory\n", filename);
+    fprintf(stderr, "s21_grep: %s: No such file or directory\n", filename);
   }
   char *line = NULL;
   size_t size;
@@ -202,11 +204,18 @@ int options_and_regulars(int argc, char **argv, char regulars[100][100],
     if (argum[0] == '-') {
       flag = arg_flags(argum, op_flags, &flag_e, &flag_f);
       *count_flags += 1;
+      if (flag_e > 0 && flag_f == 1 && (int)strlen(argv[i]) - 1 > flag_e &&
+          (int)strlen(argv[i]) > 0) {
+        strcpy(regulars[*number_regulars], argv[i] + flag_e + 1);
+        *number_regulars += 1;
+        *count_flags -= 1;
+        flag_e = -1;
+      }
     } else if (flag_f == 0) {
       read_file_regulars(argv[i], regulars, number_regulars);
       flag_f = -1;
       // *number_regulars += 1;
-    } else if (flag_e == 0 && flag_f == 1) {
+    } else if (flag_e > -1 && flag_f == 1) {
       strcpy(regulars[*number_regulars], argv[i]);
       *number_regulars += 1;
       flag_e = -1;
@@ -231,11 +240,11 @@ int arg_flags(char *argum, char *op_flags, int *flag_e, int *flag_f) {
       }
       if (sym == 'f') *flag_f = 0;
       if (sym == 'e') {
-        *flag_e = 0;
+        *flag_e = i;
         i = (int)strlen(argum);
-        }
+      }
     } else {
-      printf("%s: Illegal option -- %c\n", argum, sym);
+      fprintf(stderr, "s21_grep: %s: Illegal option -- %c\n", argum, sym);
       flag = ERROR;
     }
   }

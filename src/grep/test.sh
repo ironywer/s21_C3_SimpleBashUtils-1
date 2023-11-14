@@ -20,11 +20,11 @@ COMPLETE=0
 #Одиночные флаги
 function check_result {
   if [ $? -eq 0 ]; then
-    # echo -e "${GREEN}Test passed${NC}"
+    echo -e "${GREEN}Test passed${NC}\n"
     ALL=$((ALL+1))
     COMPLETE=$((COMPLETE+1))
   else
-    echo -e "${RED}Test failed${NC}"
+    echo -e "${RED}Test failed${NC}\n"
     echo "result.txt"
     cat result.txt 
     echo "expected.txt"
@@ -107,6 +107,14 @@ done
 # grep -ho "pattern" file1.txt file2.txt > expected.txt
 # cmp result.txt expected.txt
 # check_result
+
+for i in ${flag[*]}; do
+  echo -e "Test -f${i} flags"
+  ./s21_grep -f$i "pattern" file1.txt file2.txt > result.txt
+  grep -f$i "pattern" file1.txt file2.txt > expected.txt
+  cmp result.txt expected.txt
+  check_result
+done
 
 # echo -e "Test -nf flags"
 # ./s21_grep -nf pattern.txt file2.txt > result.txt
