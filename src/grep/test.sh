@@ -45,7 +45,7 @@ for i in ${flag[*]}; do
 done 
 
 echo -e "Test -f flag"
-./s21_grep -f pattern.txt file1.txt file2.txt > result.txt
+valgrind --track-origins=yes -q ./s21_grep -f pattern.txt file1.txt file2.txt > result.txt
 grep -Ef pattern.txt file1.txt file2.txt > expected.txt
 cmp result.txt expected.txt
 check_result

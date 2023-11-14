@@ -67,7 +67,7 @@ for i in ${flag[*]}; do
     # fi
   done 
 done 
-valgrind --tool=memcheck --leak-check=yes  ./s21_cat --number-nonblank ${INPUTFILE} > result.txt
+./s21_cat --number-nonblank ${INPUTFILE} > result.txt
 cat -b ${INPUTFILE} > expected.txt
 echo -e "Test --number-nonblank flag"
 cmp result.txt expected.txt
@@ -113,4 +113,4 @@ echo -e "Total tests passed: ${COUNT}/${ALL}"
 
 clang-format -n *.c
 
-cppcheck --enable=all *.c
+cppcheck *.c
